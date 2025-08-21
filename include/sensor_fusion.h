@@ -8,7 +8,7 @@ void initWithPitch(float pitchDeg);
 float acc2rotation(float x, float y);
 float constrainAngle(float x);
 // 输入原始IMU，内部维护dt（通过micros）
-void update(int16_t ax, int16_t ay, int16_t az, int16_t gx, int16_t gy, int16_t gz);
+void kalman_update();
 
 extern float kalAngleZ;
 #endif // SENSOR_FUSION_MODULE_H

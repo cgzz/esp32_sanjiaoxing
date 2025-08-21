@@ -23,6 +23,5 @@ extern int test_flag;
 extern bool motor_enable_flag;
 
 extern float err_angle;
-extern float gyroZrate;
 extern bool blance_swingup;
 #endif // PARAMS_MODULE_H

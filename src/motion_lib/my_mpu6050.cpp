@@ -7,9 +7,9 @@
 
 MPU6050 mpu6050(myWire);
 // 初始状态
-float yaw0 = 0;
-float pitch0 = 0;
-float roll0 = 0;
+float angleZ0 = 0;
+float angleY0 = 0;
+float angleX0 = 0;
 // 当前状态
 float now_angleZ = 0;
 float now_angleY = 0;
@@ -26,9 +26,9 @@ void mpu6050_init()
     // 让IMU稳定一下再锁定初始航向（可按需要延长/多次均值）
     delay(200);
     mpu6050_update();
-    yaw0 = now_angleZ;
-    pitch0 = now_angleY;
-    roll0 = now_angleX;
+    angleX0 = now_angleX;
+    angleY0 = now_angleY;
+    angleZ0 = now_angleZ;
     Serial.println("MPU6050初始状态已更新");
 }
 // MPU6050更新,获取状态 角度制

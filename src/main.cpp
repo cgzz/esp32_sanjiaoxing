@@ -4,13 +4,13 @@
 
 #include "my_config.h"
 #include "my_foc.h"
-#include "mpu6050_hal.h"
+#include "my_mpu6050.h"
 #include "sensor_fusion.h"
 #include "my_control.h"
 #include "my_web.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+#include "my_io.h"
 // ESP32 IOs / constants
 #define ACTIVE_PIN 4
 #define BAT_VOLTAGE_SENSE_PIN 34
@@ -48,7 +48,7 @@ void data_send_Task(void *)
     send_msg[2] = az / 131; // 纵向角
 
     send_msg[3] = 0;         // 角速度X
-    send_msg[4] = gyroZrate; // 角速度Y
+    send_msg[4] = now_gyroZ; // 角速度Y
     send_msg[5] = 0;         // 角速度Z
 
     send_msg[6] = err_angle;
@@ -68,10 +68,9 @@ void robot_control_Task(void *)
   for (;;)
   {
     // 读取IMU
-    if (MPU6050HAL::readRaw(ax, ay, az, gx, gy, gz))
-      update(ax, ay, az, gx, gy, gz);
+    mpu6050_update();
+    kalman_update();
     err_angle = constrainAngle(fmod(kalAngleZ - zero_angle, 120.0f) - target_angle);
-    gyroZrate = gz / 131.0f; // 注意：这里gz来自上面的readRaw
     // =============================================
     if (testmode_enabled)
     {
@@ -97,28 +96,17 @@ void robot_control_Task(void *)
 void setup()
 {
   Serial.begin(115200);
-
   pinMode(ACTIVE_PIN, OUTPUT);
   digitalWrite(ACTIVE_PIN, LOW);
-
   // IMU init
-  MPU6050HAL::begin(19, 18, 400000);
-  if (!MPU6050HAL::configure())
-  {
-    Serial.println("Error reading sensor");
-    while (1)
-    {
-    }
-  }
-  MPU6050HAL::readRaw(ax, ay, az, gx, gy, gz);
-  float pitch = acc2rotation((float)ax, (float)ay);
+  my_io_init();
+  mpu6050_init();
+  float pitch = acc2rotation(angleX0, angleY0);
   initWithPitch(pitch);
   Serial.println("kalman mpu6050 init");
   // 新增初始化
-  if (MPU6050HAL::readRaw(ax, ay, az, gx, gy, gz))
-    update(ax, ay, az, gx, gy, gz);
+  kalman_update();
   zero_angle = kalAngleZ;
-
   // FOC 初始化
   motorFocSetup();
   my_wifi_init();

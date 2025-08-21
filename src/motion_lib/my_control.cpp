@@ -1,8 +1,8 @@
 // 平衡控制：根据摆角/角速度/电机速度判断是否稳定，自适应目标角并使用两组LQR增益输出速度目标，提供稳定态标志。
 #include "my_control.h"
 #include "my_config.h"
-#include <EEPROM.h>
 #include "my_foc.h"
+#include "my_mpu6050.h"
 
 bool stable = false;
 uint32_t last_unstable_time = 0;
@@ -41,13 +41,13 @@ void blance_compute()
   {
     motor.PID_velocity.P = v_p_1;
     motor.PID_velocity.I = v_i_1;
-    motion_target = LQR_K3_1 * err_angle + LQR_K3_2 * gyroZrate + LQR_K3_3 * motor.shaft_velocity;
+    motion_target = LQR_K3_1 * err_angle + LQR_K3_2 * now_gyroZ + LQR_K3_3 * motor.shaft_velocity;
   }
   else
   {
     motor.PID_velocity.P = v_p_2;
     motor.PID_velocity.I = v_i_2;
-    motion_target = LQR_K4_1 * err_angle + LQR_K4_2 * gyroZrate + LQR_K4_3 * motor.shaft_velocity;
+    motion_target = LQR_K4_1 * err_angle + LQR_K4_2 * now_gyroZ + LQR_K4_3 * motor.shaft_velocity;
   }
 
   if (abs(motion_target) > 120)
@@ -59,6 +59,6 @@ void blance_compute()
 void swingup_compute()
 {
   motor.controller = torque;
-  motion_target = -_sign(gyroZrate) * swing_up_voltage;
+  motion_target = -_sign(now_gyroZ) * swing_up_voltage;
   blance_swingup = false; // 摇摆为false
 }

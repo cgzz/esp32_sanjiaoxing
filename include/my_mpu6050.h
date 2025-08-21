@@ -7,9 +7,9 @@
 void mpu6050_init();
 void mpu6050_update();
 
-extern float yaw0;
-extern float pitch0;
-extern float roll0;
+extern float angleZ0;
+extern float angleY0;
+extern float angleX0;
 
 extern float now_angleZ;
 extern float now_angleY;

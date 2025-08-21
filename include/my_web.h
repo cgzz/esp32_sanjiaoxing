@@ -1,6 +1,5 @@
 #ifndef MY_WEB_H
 #define MY_WEB_H
-#include "mpu6050_hal.h"
 // wifi定义
 #define SSID "BIEGUOQU"
 #define PASSWORD "qazwsxedcr"

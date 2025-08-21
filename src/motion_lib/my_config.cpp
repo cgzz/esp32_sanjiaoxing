@@ -22,5 +22,4 @@ int test_flag = 0;
 bool motor_enable_flag = false;
 
 float err_angle = 0;
-float gyroZrate = 0;
 bool blance_swingup = false;
