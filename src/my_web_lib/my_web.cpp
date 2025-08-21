@@ -14,6 +14,7 @@ void we_evt_connect(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType typ
     ack["type"] = "info";
     ack["text"] = "connected";
     wsSendTo(c, ack);
+    wsSendTo(c, cb_ui_config());
 }
 // 断联事件
 void we_evt_disconnect(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType type, void *arg, uint8_t *data, size_t len)

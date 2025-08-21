@@ -19,6 +19,58 @@ float send_msg[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 float pid_cache[13] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 const char *keys[13] = {"angP", "angI", "angD", "spdP", "spdI", "spdD", "posP", "posI", "posD", "yawP", "yawI", "yawD", "zero"};
 
+// UI 配置：图表与滑条信息
+struct ChartConfig
+{
+    const char *title;
+    const char *legend[3];
+};
+
+struct SliderGroup
+{
+    const char *group;
+    const char *names[3];
+};
+
+static const ChartConfig chart_cfg[3] = {
+    {"姿态角", {"Pitch", "Roll", "Yaw"}},
+    {"电机电流", {"Left", "Right", "Total"}},
+    {"电池状态", {"Voltage", "Current", "Temp"}},
+};
+
+static const SliderGroup slider_cfg[4] = {
+    {"Angle PID", {"P", "I", "D"}},
+    {"Speed PID", {"P", "I", "D"}},
+    {"Position PID", {"P", "I", "D"}},
+    {"Yaw PID", {"P", "I", "D"}},
+};
+
+// UI 配置 JSON 打包
+JsonDocument cb_ui_config()
+{
+    StaticJsonDocument<512> doc;
+    JsonArray charts = doc.createNestedArray("charts");
+    for (const auto &c : chart_cfg)
+    {
+        JsonObject o = charts.createNestedObject();
+        o["title"] = c.title;
+        JsonArray l = o.createNestedArray("legends");
+        for (int i = 0; i < 3; ++i)
+            l.add(c.legend[i]);
+    }
+    JsonArray sliders = doc.createNestedArray("sliders");
+    for (const auto &sg : slider_cfg)
+    {
+        JsonObject g = sliders.createNestedObject();
+        g["group"] = sg.group;
+        JsonArray n = g.createNestedArray("names");
+        for (int i = 0; i < 3; ++i)
+            n.add(sg.names[i]);
+    }
+    doc["type"] = "ui_config";
+    return doc;
+}
+
 // 12+1 路遥测数据（自定义映射：电流/角速度/位置/温度...）
 uint32_t cb_telemetry()
 {
@@ -26,15 +78,12 @@ uint32_t cb_telemetry()
     uint32_t hz = telem_hz ? telem_hz : 1;
     uint32_t dt_ms = 1000 / hz;
     // 组包 -> 广播
-    doc["type"] = "telemetry", doc["fallen"] = send_fall;
-    doc["pitch"] = send_msg[0], doc["roll"] = send_msg[1], doc["yaw"] = send_msg[2];
-    // 根据 charts_send 决定是否打包 n 路曲线数据
-    if (charts_send)
-    {
-        JsonArray arr = doc.createNestedArray("d");
-        for (int i = 3; i < 12; i++)
-            arr.add(send_msg[i]);
-    }
+    doc["type"] = "telemetry";
+    doc["fallen"] = send_fall;
+    JsonArray arr = doc.createNestedArray("d");
+    int limit = charts_send ? 12 : 3;
+    for (int i = 0; i < limit; i++)
+        arr.add(send_msg[i]);
     wsBroadcast(doc);
     return dt_ms; // 返回下次采样间隔（ms）
 }
