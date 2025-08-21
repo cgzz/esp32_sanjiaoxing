@@ -109,7 +109,7 @@ void setup()
   // 启动网页和控制任务
   xTaskCreatePinnedToCore(robot_control_Task, "control", 8192, nullptr, 20, &control_TaskHandle, 0);
   xTaskCreatePinnedToCore(data_send_Task, "websend", 8192, nullptr, 1, &data_send_TaskHandle, 1);
-  xTaskCreatePinnedToCore(data_send_Task, "led", 8192, nullptr, 1, &led_TaskHandle, 1);
+  xTaskCreatePinnedToCore(led_Task, "led", 8192, nullptr, 1, &led_TaskHandle, 1);
 }
 
 void loop()
