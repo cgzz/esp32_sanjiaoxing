@@ -17,13 +17,13 @@ static TaskHandle_t control_TaskHandle = nullptr;   // 控制 FreeRTOS 任务
 static TaskHandle_t led_TaskHandle = nullptr;       // LED FreeRTOS 任务
 // 三个图表的名称和三个通道的名称
 ChartConfig chart_config[3] = {
-    {"", {"", "", ""}},
-    {"", {"", "", ""}},
-    {"", {"", "", ""}},
+    {"角速度", {"", "Y", ""}},
+    {"角度跟踪", {"误差角度", "当前角度", ""}},
+    {"电机输出", {"目标", "实际速度", ""}},
 };
 // 12个滑块组的名称
 SliderGroup slider_group[4] = {
-    {"", {"", "", ""}},
+    {"摇摆模式", {"晃动强度系数", "", ""}},
     {"", {"", "", ""}},
     {"", {"", "", ""}},
     {"", {"", "", ""}},
@@ -44,12 +44,12 @@ void data_send_Task(void *)
     send_msg[4] = now_gyroZ; // 角速度Y
     send_msg[5] = 0;         // 角速度Z
     // 图2
-    send_msg[6] = err_angle;
-    send_msg[7] = kalAngleZ - angleZ0;
+    send_msg[6] = err_angle;           // 误差角度
+    send_msg[7] = kalAngleZ - angleZ0; // 当前角度
     send_msg[8] = 0;
     // 图3
     send_msg[9] = motion_target;
-    send_msg[10] = 0;
+    send_msg[10] = motor.shaft_velocity;
     send_msg[11] = 0;
     // 状态
     send_fall = blance_swingup;

@@ -37,18 +37,10 @@ void move_update()
 {
   err_angle = constrainAngle(fmod(kalAngleZ - angleZ0, 120.0f) - target_angle);
   // =============================================
-  if (testmode_enabled)
-  {
-    motion_target = testmode_value;
-    motor.controller = (MotionControlType)(testmode_motor_mode);
-  }
+  if (abs(err_angle) < swing_up_angle) // 如果角度小于摆动角度阈值，执行平衡控制
+    blance_compute();
   else
-  {
-    if (abs(err_angle) < swing_up_angle) // 如果角度小于摆动角度阈值，执行平衡控制
-      blance_compute();
-    else
-      swingup_compute();
-  }
+    swingup_compute();
   if (!robot_run)
     motion_target = 0;
 }
