@@ -58,7 +58,7 @@ void ws_evt_data(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType type, 
 
     // 4) 测试模式：仅解析并回调（不保状态/不实现逻辑）
     else if (!strcmp(typeStr, "test_mode"))
-        cb_testmode_fn(doc["enabled"].as<bool>() | false, doc["mode"] | 0, doc["value"] | 0.0f);
+        cb_testmode(doc["enabled"].as<bool>() | false, doc["mode"] | 0, doc["value"] | 0.0f);
 
     // 5) 特殊状态检测开关
     else if (!strcmp(typeStr, "fall_detect"))
@@ -70,82 +70,25 @@ void ws_evt_data(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType type, 
 
     // 7) 摇杆
     else if (!strcmp(typeStr, "joy"))
-        cb_joystick_fn(doc["x"] | 0.0f, doc["y"] | 0.0f, doc["deg"] | 0.0f);
+        cb_joystick(doc["x"] | 0.0f, doc["y"] | 0.0f, doc["deg"] | 0.0f);
 
     // 8) 设置 PID
     else if (!strcmp(typeStr, "set_pid"))
-        cb_pid_set_fn(doc["param"].as<JsonObject>());
+        cb_pid_set(doc["param"].as<JsonObject>());
 
     // 9) 读取 PID（回填给前端）
     else if (!strcmp(typeStr, "get_pid"))
-        wsSendTo(c, cb_pid_get_n());
+        wsSendTo(c, cb_pid_get());
 
     // 10) led处理
     else if (!strcmp(typeStr, "led_set"))
-    {
-        LedConfig c = leds_get();
-        JsonObject cfg = doc["cfg"].as<JsonObject>();
-        if (!cfg.isNull())
-        {
-            c.mode = (LedMode)(cfg["mode"] | (int)c.mode);
-            c.dir = cfg["dir"] | c.dir;
-            c.interval = cfg["interval"] | c.interval;
-            c.brightness = cfg["brightness"] | c.brightness;
-            if (cfg.containsKey("color"))
-            {
-                const char *s = cfg["color"]; // "#rrggbb"
-                uint32_t r = 0, g = 0, b = 0;
-                if (s && strlen(s) == 7 && s[0] == '#')
-                {
-                    auto hex = [&](char ch) -> uint8_t
-                    {
-                        if (ch >= '0' && ch <= '9')
-                            return ch - '0';
-                        ch |= 32;
-                        return (ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10) : 0;
-                    };
-                    r = (hex(s[1]) << 4) | hex(s[2]);
-                    g = (hex(s[3]) << 4) | hex(s[4]);
-                    b = (hex(s[5]) << 4) | hex(s[6]);
-                    c.color = (r << 16) | (g << 8) | b;
-                }
-            }
-            c.tailDecay = cfg["tailDecay"] | c.tailDecay;
-            c.theaterStep = cfg["theaterStep"] | c.theaterStep;
-            c.breathSpeed = cfg["breathSpeed"] | c.breathSpeed;
-            c.rainbowSpeed = cfg["rainbowSpeed"] | c.rainbowSpeed;
-            leds_apply(c);
-        }
-    }
-
+        cb_led_set(doc["param"].as<JsonObject>());
     // 11) LED：读取当前状态
     else if (!strcmp(typeStr, "led_get"))
-    {
-        LedConfig ccc = leds_get();
-        StaticJsonDocument<256> out;
-        out["type"] = "led_state";
-        JsonObject s = out.createNestedObject("state");
-        s["mode"] = (int)ccc.mode;
-        s["dir"] = ccc.dir;
-        s["interval"] = ccc.interval;
-        s["brightness"] = ccc.brightness;
-        char cc[8];
-        snprintf(cc, sizeof(cc), "#%02X%02X%02X", (ccc.color >> 16) & 0xFF, (ccc.color >> 8) & 0xFF, ccc.color & 0xFF);
-        s["color"] = cc;
-        s["tailDecay"] = ccc.tailDecay;
-        s["theaterStep"] = ccc.theaterStep;
-        s["breathSpeed"] = ccc.breathSpeed;
-        s["rainbowSpeed"] = ccc.rainbowSpeed;
-        s["power"] = ccc.powerOn;
-        wsSendTo(c, out);
-    }
-
+        cb_led_get(c);
     // 12) LED：上电/全灭
     else if (!strcmp(typeStr, "led_power"))
-    {
-        bool on = doc["on"] | false;
-        leds_power(on);
-    }
+        leds_power(doc["on"] | false);
 }
 
 // ping/pong事件

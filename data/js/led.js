@@ -92,6 +92,20 @@ function paintPreview(mode, phase = 0) {
           dots[i].style.background = `rgb(${ir},${ig},${ib})`;
         }
       }
+    case 6: // 自定义模式1
+      {
+        // 自定义模式1的实现
+      }
+      break;
+    case 7: // 自定义模式2
+      {
+        // 自定义模式2的实现
+      }
+      break;
+    case 8: // 自定义模式3
+      {
+        // 自定义模式3的实现
+      }
       break;
   }
 }

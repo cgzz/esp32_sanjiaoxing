@@ -18,24 +18,16 @@
 extern AsyncWebServer server;
 extern AsyncWebSocket ws;
 
-// ===== 业务桥接：对外暴露的回调指针类型定义 =====
-typedef uint32_t (*TelemetryFn)();
-typedef void (*PidSetFn)(JsonObject param);
-typedef JsonDocument (*PidGetFn)();
-typedef void (*TestModeFn)(bool enabled, int mode, float value);
-typedef void (*JoystickFn)(float x, float y, float a);
-// ===== 业务桥接：对外暴露的回调指针 =====
-extern PidSetFn cb_pid_set_fn;
-extern PidGetFn cb_pid_get_n;
-extern TelemetryFn cb_telem_fn;
-extern TestModeFn cb_testmode_fn;
-extern JoystickFn cb_joystick_fn;
-
 // UI 配置打包
 JsonDocument cb_ui_config();
-
-// 数据更新
 uint32_t cb_telemetry();
+void cb_pid_set(JsonObject param);
+JsonDocument cb_pid_get();
+void cb_testmode(bool enabled, int mode, float value);
+void cb_joystick(float x, float y, float a);
+void cb_led_set(JsonObject param);
+void cb_led_get(AsyncWebSocketClient *c);
+
 // fs函数
 static String contentType(const String &path);
 

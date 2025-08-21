@@ -139,9 +139,58 @@ void cb_joystick(float x, float y, float a)
     joyA = my_math_deadband(my_math_limit(a, -1.0f, 1.0f), 0.02f);
 }
 
-// ===== 回调指针定义 =====
-PidSetFn cb_pid_set_fn = cb_pid_set;
-PidGetFn cb_pid_get_n = cb_pid_get;
-TelemetryFn cb_telem_fn = cb_telemetry;
-TestModeFn cb_testmode_fn = cb_testmode;
-JoystickFn cb_joystick_fn = cb_joystick;
+// led set
+void cb_led_set(JsonObject param)
+{
+    JsonObject cfg_in = param["cfg"].as<JsonObject>();
+    if (cfg_in.isNull())
+        return;
+    led_config.mode = cfg_in["mode"] | (int)led_config.mode;
+    led_config.dir = cfg_in["dir"] | led_config.dir;
+    led_config.interval = cfg_in["interval"] | led_config.interval;
+    led_config.brightness = cfg_in["brightness"] | led_config.brightness;
+    led_config.tailDecay = cfg_in["tailDecay"] | led_config.tailDecay;
+    led_config.theaterStep = cfg_in["theaterStep"] | led_config.theaterStep;
+    led_config.breathSpeed = cfg_in["breathSpeed"] | led_config.breathSpeed;
+    led_config.rainbowSpeed = cfg_in["rainbowSpeed"] | led_config.rainbowSpeed;
+    if (cfg_in.containsKey("color"))
+    {
+        const char *s = cfg_in["color"]; // "#rrggbb"
+        uint32_t r = 0, g = 0, b = 0;
+        if (s && strlen(s) == 7 && s[0] == '#')
+        {
+            auto hex = [&](char ch) -> uint8_t
+            {
+                if (ch >= '0' && ch <= '9')
+                    return ch - '0';
+                ch |= 32;
+                return (ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10) : 0;
+            };
+            r = (hex(s[1]) << 4) | hex(s[2]);
+            g = (hex(s[3]) << 4) | hex(s[4]);
+            b = (hex(s[5]) << 4) | hex(s[6]);
+            led_config.color = (r << 16) | (g << 8) | b;
+        }
+    }
+    leds_apply();
+}
+// led get
+void cb_led_get(AsyncWebSocketClient *c)
+{
+    StaticJsonDocument<256> out;
+    JsonObject s = out.createNestedObject("state");
+    out["type"] = "led_state";
+    char cc[8];
+    snprintf(cc, sizeof(cc), "#%02X%02X%02X", (led_config.color >> 16) & 0xFF, (led_config.color >> 8) & 0xFF, led_config.color & 0xFF);
+    s["color"] = cc;
+    s["mode"] = (int)led_config.mode;
+    s["dir"] = led_config.dir;
+    s["interval"] = led_config.interval;
+    s["brightness"] = led_config.brightness;
+    s["tailDecay"] = led_config.tailDecay;
+    s["theaterStep"] = led_config.theaterStep;
+    s["breathSpeed"] = led_config.breathSpeed;
+    s["rainbowSpeed"] = led_config.rainbowSpeed;
+    s["power"] = led_config.powerOn;
+    wsSendTo(c, out);
+}
