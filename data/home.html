@@ -50,13 +50,13 @@
 
     <div class="grid cols-3">
         <div class="card">
-            <h2>误差跟踪</h2><canvas id="chart1"></canvas>
+            <h2 id="chartTitle1">误差跟踪</h2><canvas id="chart1"></canvas>
         </div>
         <div class="card">
-            <h2>轮速跟踪</h2><canvas id="chart2"></canvas>
+            <h2 id="chartTitle2">轮速跟踪</h2><canvas id="chart2"></canvas>
         </div>
         <div class="card">
-            <h2>力矩跟踪</h2><canvas id="chart3"></canvas>
+            <h2 id="chartTitle3">力矩跟踪</h2><canvas id="chart3"></canvas>
         </div>
     </div>
 
@@ -72,12 +72,12 @@
         <!-- 角度环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600">角度环</div>
+            <div style="font-weight:600" id="pidGroup1">角度环</div>
 
             <!-- angP -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>P</span>
+                    <span id="pid1Label1">P</span>
                     <span class="nbox">
                         <span id="sv_angP">0.000</span>
                         <input type="number" id="nv_angP" step="0.01" value="0.000">
@@ -89,7 +89,7 @@
             <!-- angI -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>I</span>
+                    <span id="pid1Label2">I</span>
                     <span class="nbox">
                         <span id="sv_angI">0.000</span>
                         <input type="number" id="nv_angI" step="0.001" value="0.000">
@@ -101,7 +101,7 @@
             <!-- angD -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>D</span>
+                    <span id="pid1Label3">D</span>
                     <span class="nbox">
                         <span id="sv_angD">0.000</span>
                         <input type="number" id="nv_angD" step="0.001" value="0.000">
@@ -114,11 +114,11 @@
         <!-- 速度环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600">速度环</div>
+            <div style="font-weight:600" id="pidGroup2">速度环</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>P</span>
+                    <span id="pid2Label1">P</span>
                     <span class="nbox">
                         <span id="sv_spdP">0.000</span>
                         <input type="number" id="nv_spdP" step="0.01" value="0.000">
@@ -129,7 +129,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>I</span>
+                    <span id="pid2Label2">I</span>
                     <span class="nbox">
                         <span id="sv_spdI">0.000</span>
                         <input type="number" id="nv_spdI" step="0.001" value="0.000">
@@ -140,7 +140,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>D</span>
+                    <span id="pid2Label3">D</span>
                     <span class="nbox">
                         <span id="sv_spdD">0.000</span>
                         <input type="number" id="nv_spdD" step="0.001" value="0.000">
@@ -153,11 +153,11 @@
         <!-- 位置环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600">位置环</div>
+            <div style="font-weight:600" id="pidGroup3">位置环</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>P</span>
+                    <span id="pid3Label1">P</span>
                     <span class="nbox">
                         <span id="sv_posP">0.000</span>
                         <input type="number" id="nv_posP" step="0.01" value="0.000">
@@ -168,7 +168,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>I</span>
+                    <span id="pid3Label2">I</span>
                     <span class="nbox">
                         <span id="sv_posI">0.000</span>
                         <input type="number" id="nv_posI" step="0.001" value="0.000">
@@ -179,7 +179,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>D</span>
+                    <span id="pid3Label3">D</span>
                     <span class="nbox">
                         <span id="sv_posD">0.000</span>
                         <input type="number" id="nv_posD" step="0.001" value="0.000">
@@ -192,11 +192,11 @@
         <!-- 航向环（新增） -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600">航向环</div>
+            <div style="font-weight:600" id="pidGroup4">航向环</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>P</span>
+                    <span id="pid4Label1">P</span>
                     <span class="nbox">
                         <span id="sv_yawP">0.000</span>
                         <input type="number" id="nv_yawP" step="0.01" value="0.000">
@@ -207,7 +207,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>I</span>
+                    <span id="pid4Label2">I</span>
                     <span class="nbox">
                         <span id="sv_yawI">0.000</span>
                         <input type="number" id="nv_yawI" step="0.001" value="0.000">
@@ -218,7 +218,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span>D</span>
+                    <span id="pid4Label3">D</span>
                     <span class="nbox">
                         <span id="sv_yawD">0.000</span>
                         <input type="number" id="nv_yawD" step="0.001" value="0.000">

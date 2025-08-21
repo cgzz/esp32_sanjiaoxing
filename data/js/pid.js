@@ -132,3 +132,17 @@ export function fillPidToUI(obj) {
     state.pidParam[k] = v;
   });
 }
+
+export function applySliderConfig(cfg) {
+  if (!Array.isArray(cfg)) return;
+  cfg.forEach((g, gi) => {
+    const title = document.querySelector(`#pidGroup${gi + 1}`);
+    if (title && g.group) title.textContent = g.group;
+    if (Array.isArray(g.names)) {
+      g.names.forEach((name, si) => {
+        const label = document.querySelector(`#pid${gi + 1}Label${si + 1}`);
+        if (label) label.textContent = name;
+      });
+    }
+  });
+}
