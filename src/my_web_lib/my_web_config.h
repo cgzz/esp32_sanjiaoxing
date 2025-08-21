@@ -31,6 +31,9 @@ extern TelemetryFn cb_telem_fn;
 extern TestModeFn cb_testmode_fn;
 extern JoystickFn cb_joystick_fn;
 
+// UI 配置打包
+JsonDocument cb_ui_config();
+
 // 数据更新
 uint32_t cb_telemetry();
 // fs函数
