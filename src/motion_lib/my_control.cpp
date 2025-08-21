@@ -1,8 +1,8 @@
 // 平衡控制：根据摆角/角速度/电机速度判断是否稳定，自适应目标角并使用两组LQR增益输出速度目标，提供稳定态标志。
-#include "balance_control.h"
+#include "my_control.h"
 #include "my_config.h"
 #include <EEPROM.h>
-#include "motor_foc.h"
+#include "my_foc.h"
 
 bool stable = false;
 uint32_t last_unstable_time = 0;

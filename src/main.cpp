@@ -3,10 +3,10 @@
 #include <SimpleFOC.h>
 
 #include "my_config.h"
-#include "motor_foc.h"
+#include "my_foc.h"
 #include "mpu6050_hal.h"
 #include "sensor_fusion.h"
-#include "balance_control.h"
+#include "my_control.h"
 #include "my_web.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -24,6 +24,20 @@ int16_t ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0;
 static TaskHandle_t data_send_TaskHandle = nullptr; // 遥测 FreeRTOS 任务
 static TaskHandle_t control_TaskHandle = nullptr;
 float zero_angle = 0;
+
+ChartConfig chart_config[3] = {
+    {"", {"", "", ""}},
+    {"", {"", "", ""}},
+    {"", {"", "", ""}},
+};
+
+SliderGroup slider_group[4] = {
+    {"", {"", "", ""}},
+    {"", {"", "", ""}},
+    {"", {"", "", ""}},
+    {"", {"", "", ""}},
+};
+
 void data_send_Task(void *)
 {
   for (;;)
@@ -109,6 +123,7 @@ void setup()
   motorFocSetup();
   my_wifi_init();
   my_web_asyn_init();
+  my_web_ui_init(slider_group, chart_config);
   digitalWrite(ACTIVE_PIN, HIGH);
 
   xTaskCreatePinnedToCore(robot_control_Task, "ctrl_2ms", 8192, nullptr, 20, &control_TaskHandle, 0);

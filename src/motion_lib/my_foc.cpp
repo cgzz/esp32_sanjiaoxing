@@ -1,5 +1,5 @@
 // 电机FOC配置与控制：初始化BLDC驱动与传感器、加载/保存零电角、运行loopFOC，提供移动与控制模式切换接口，导出全局BLDCMotor对象。
-#include "motor_foc.h"
+#include "my_foc.h"
 #include "encoder_generic.h"
 #include "my_config.h"
 

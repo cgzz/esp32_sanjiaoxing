@@ -5,16 +5,11 @@ import { wsSend } from './ws.js';
 
 // 所有需要管理的键（含新增 yawP/yawI/yawD 与 zero）
 const KEYS = [
-  // 角度环
-  { k: 'angP', fix: 3 }, { k: 'angI', fix: 3 }, { k: 'angD', fix: 3 },
-  // 速度环
-  { k: 'spdP', fix: 3 }, { k: 'spdI', fix: 3 }, { k: 'spdD', fix: 3 },
-  // 位置环
-  { k: 'posP', fix: 3 }, { k: 'posI', fix: 3 }, { k: 'posD', fix: 3 },
-  // 航向环（新增）
-  { k: 'yawP', fix: 3 }, { k: 'yawI', fix: 3 }, { k: 'yawD', fix: 3 },
-  // 零点（显示保留 2 位）
-  { k: 'zero', fix: 2 }
+  { k: 'key01', fix: 3 }, { k: 'key02', fix: 3 }, { k: 'key03', fix: 3 },
+  { k: 'key04', fix: 3 }, { k: 'key05', fix: 3 }, { k: 'key06', fix: 3 },
+  { k: 'key07', fix: 3 }, { k: 'key08', fix: 3 }, { k: 'key09', fix: 3 },
+  { k: 'key10', fix: 3 }, { k: 'key11', fix: 3 }, { k: 'key12', fix: 3 },
+  { k: 'key13', fix: 2 }
 ];
 
 // 绑定一个键：滑条与数字框双向联动
@@ -29,7 +24,6 @@ function bindKey(k, fix) {
     state.pidParam[k] = v0;
     if (sv) sv.textContent = v0.toFixed(fix);
     if (rg) {
-      // ✨ MOD: 初值写入时“仅滑条被夹紧”，数字框保留真实值（可超出范围）
       const lo = parseFloat(rg.min);
       const hi = parseFloat(rg.max);
       let cv = v0;
@@ -100,7 +94,6 @@ function bindKey(k, fix) {
 export function initPID() {
   // 绑定所有键
   KEYS.forEach(({ k, fix }) => bindKey(k, fix));
-
   // 按钮沿用原有
   $('#btnPidSend').onclick = () => wsSend({ type: 'set_pid', param: state.pidParam });
   $('#btnPidPull').onclick = () => wsSend({ type: 'get_pid' });
@@ -121,7 +114,6 @@ export function fillPidToUI(obj) {
     if (sv) sv.textContent = v.toFixed(fix);
     if (nv) nv.value = v.toFixed(fix);
     if (rg) {
-      // ✨ MOD: 回填时也仅对滑条做 clamp，文本框保留真实值（可超限）
       const lo = parseFloat(rg.min);
       const hi = parseFloat(rg.max);
       let cv = v;
