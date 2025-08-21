@@ -1,9 +1,9 @@
 // /js/ws.js
 import { state } from './state.js';
 import { setStatus, appendLog } from './dom.js';
-import { feedCharts } from './charts.js';
+import { feedCharts, applyChartConfig } from './charts.js';
 import { setAttitude } from './att3d.js';
-import { fillPidToUI } from './pid.js';
+import { fillPidToUI, applySliderConfig } from './pid.js';
 
 let ws = null, timer = null;
 
@@ -47,6 +47,11 @@ function onMsg(ev) {
       }
       // 通知订阅者（例如 app.js）做额外处理：摔倒指示灯等
       if (_onTelemetry) _onTelemetry(msg);
+      break;
+    }
+    case 'ui_config': {
+      if (Array.isArray(msg.charts)) applyChartConfig(msg.charts);
+      if (Array.isArray(msg.sliders)) applySliderConfig(msg.sliders);
       break;
     }
     case 'pid': {
