@@ -60,24 +60,21 @@
         </div>
     </div>
 
-    <!-- 控制参数（PID） -->
     <div class="card" id="pidCard">
         <div style="display:flex;justify-content:space-between;align-items:center">
-            <h2>控制参数（PID）</h2>
+            <h2>控制参数</h2>
             <div style="display:flex; gap:8px">
                 <button class="btn" id="btnPidSend">发送</button>
                 <button class="btn" id="btnPidPull">更新</button>
             </div>
         </div>
-        <!-- 角度环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600" id="pidGroup1">角度环</div>
+            <div style="font-weight:600" id="pidGroup1">参数01-03</div>
 
-            <!-- angP -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid1Label1">P</span>
+                    <span id="pid1Label1">参数01</span>
                     <span class="nbox">
                         <span id="sv_angP">0.000</span>
                         <input type="number" id="nv_angP" step="0.01" value="0.000">
@@ -86,10 +83,9 @@
                 <input id="rg_angP" type="range" step="0.01" value="0">
             </div>
 
-            <!-- angI -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid1Label2">I</span>
+                    <span id="pid1Label2">参数02</span>
                     <span class="nbox">
                         <span id="sv_angI">0.000</span>
                         <input type="number" id="nv_angI" step="0.001" value="0.000">
@@ -98,10 +94,9 @@
                 <input id="rg_angI" type="range" step="0.001" value="0">
             </div>
 
-            <!-- angD -->
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid1Label3">D</span>
+                    <span id="pid1Label3">参数03</span>
                     <span class="nbox">
                         <span id="sv_angD">0.000</span>
                         <input type="number" id="nv_angD" step="0.001" value="0.000">
@@ -111,14 +106,13 @@
             </div>
         </div>
 
-        <!-- 速度环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600" id="pidGroup2">速度环</div>
+            <div style="font-weight:600" id="pidGroup2">参数04-06</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid2Label1">P</span>
+                    <span id="pid2Label1">参数04</span>
                     <span class="nbox">
                         <span id="sv_spdP">0.000</span>
                         <input type="number" id="nv_spdP" step="0.01" value="0.000">
@@ -129,7 +123,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid2Label2">I</span>
+                    <span id="pid2Label2">参数05</span>
                     <span class="nbox">
                         <span id="sv_spdI">0.000</span>
                         <input type="number" id="nv_spdI" step="0.001" value="0.000">
@@ -140,7 +134,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid2Label3">D</span>
+                    <span id="pid2Label3">参数06</span>
                     <span class="nbox">
                         <span id="sv_spdD">0.000</span>
                         <input type="number" id="nv_spdD" step="0.001" value="0.000">
@@ -150,14 +144,13 @@
             </div>
         </div>
 
-        <!-- 位置环 -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600" id="pidGroup3">位置环</div>
+            <div style="font-weight:600" id="pidGroup3">参数07-09</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid3Label1">P</span>
+                    <span id="pid3Label1">参数07</span>
                     <span class="nbox">
                         <span id="sv_posP">0.000</span>
                         <input type="number" id="nv_posP" step="0.01" value="0.000">
@@ -168,7 +161,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid3Label2">I</span>
+                    <span id="pid3Label2">参数08</span>
                     <span class="nbox">
                         <span id="sv_posI">0.000</span>
                         <input type="number" id="nv_posI" step="0.001" value="0.000">
@@ -179,7 +172,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid3Label3">D</span>
+                    <span id="pid3Label3">参数09</span>
                     <span class="nbox">
                         <span id="sv_posD">0.000</span>
                         <input type="number" id="nv_posD" step="0.001" value="0.000">
@@ -189,14 +182,13 @@
             </div>
         </div>
 
-        <!-- 航向环（新增） -->
         <div
             style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
-            <div style="font-weight:600" id="pidGroup4">航向环</div>
+            <div style="font-weight:600" id="pidGroup4">参数10-12</div>
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid4Label1">P</span>
+                    <span id="pid4Label1">参数10</span>
                     <span class="nbox">
                         <span id="sv_yawP">0.000</span>
                         <input type="number" id="nv_yawP" step="0.01" value="0.000">
@@ -207,7 +199,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid4Label2">I</span>
+                    <span id="pid4Label2">参数11</span>
                     <span class="nbox">
                         <span id="sv_yawI">0.000</span>
                         <input type="number" id="nv_yawI" step="0.001" value="0.000">
@@ -218,7 +210,7 @@
 
             <div class="slider-item">
                 <div class="slider-head">
-                    <span id="pid4Label3">D</span>
+                    <span id="pid4Label3">参数12</span>
                     <span class="nbox">
                         <span id="sv_yawD">0.000</span>
                         <input type="number" id="nv_yawD" step="0.001" value="0.000">
@@ -228,10 +220,9 @@
             </div>
         </div>
 
-        <!-- 零点调整（新增：长滑条） -->
         <div class="slider-item" id="zeroWrap" style="margin-top:8px;">
             <div class="slider-head">
-                <span>零点调整</span>
+                <span>参数13</span>
                 <span class="nbox">
                     <span id="sv_zero">0.00</span>
                     <input type="number" id="nv_zero" step="0.1" value="0.00">
