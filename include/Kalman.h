@@ -5,7 +5,8 @@
 // 定义Kalman类，用于实现一维Kalman滤波器，主要用于角度估计。
 // 作用：在自平衡系统中，融合加速计和陀螺仪数据，减少噪声，提供准确的角度估计。
 // 为什么这样写：Kalman滤波是标准算法，这里简化为一维版本，适合嵌入式实时计算。
-class Kalman {
+class Kalman
+{
 public:
     // 构造函数。
     // 作用：初始化Kalman滤波器的参数和状态。
@@ -22,7 +23,7 @@ public:
     // 作用：用于初始化滤波器的角度状态。
     // 为什么这样写：允许外部设置起始角度，例如从静止状态开始。
     void setAngle(float angle); // Used to set angle, this should be set as the starting angle
-    
+
     // 获取无偏角速度。
     // 作用：返回滤波后的角速度（去除偏差）。
     // 为什么这样写：提供访问内部状态的方法，便于调试或进一步使用。
@@ -35,12 +36,12 @@ public:
     void setQangle(float Q_angle);
     /**
      * setQbias(float Q_bias)
-     * Default value (0.003f) is in Kalman.cpp. 
+     * Default value (0.003f) is in Kalman.cpp.
      * Raise this to follow input more closely,
      * lower this to smooth result of kalman filter.
      */
     void setQbias(float Q_bias);
-    
+
     // 设置测量噪声协方差。
     // 作用：调整滤波器对测量噪声的信任度。
     // 为什么这样写：高值表示测量不可靠，滤波更平滑。
@@ -55,13 +56,13 @@ public:
 
 private:
     /* Kalman filter variables */
-    float Q_angle; // Process noise variance for the accelerometer
-    float Q_bias; // Process noise variance for the gyro bias
+    float Q_angle;   // Process noise variance for the accelerometer
+    float Q_bias;    // Process noise variance for the gyro bias
     float R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
 
     float angle; // The angle calculated by the Kalman filter - part of the 2x1 state vector
-    float bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state vector
-    float rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
+    float bias;  // The gyro bias calculated by the Kalman filter - part of the 2x1 state vector
+    float rate;  // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
 
     float P[2][2]; // Error covariance matrix - This is a 2x2 matrix
 };

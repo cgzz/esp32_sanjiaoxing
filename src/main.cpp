@@ -1,16 +1,17 @@
 // 程序入口：初始化存储、UI/触摸与RGB、IMU与传感器融合、FOC电机、命令系统与WiFi/OTA；主循环执行FOC、UI触摸、周期性电池检测、IMU更新与平衡控制，并根据模式驱动电机与遥测。
 #include <Arduino.h>
 #include <SimpleFOC.h>
-
-#include "my_config.h"
-#include "my_foc.h"
-#include "my_mpu6050.h"
-#include "sensor_fusion.h"
-#include "my_control.h"
-#include "my_web.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+
+#include "sensor_fusion.h"
+
 #include "my_io.h"
+#include "my_foc.h"
+#include "my_mpu6050.h"
+#include "my_control.h"
+#include "my_web.h"
+
 // ESP32 IOs / constants
 #define ACTIVE_PIN 4
 #define BAT_VOLTAGE_SENSE_PIN 34
@@ -19,7 +20,6 @@ static const double R2_VOLTAGE = 10000;
 static const double MIN_VOLTAGE = 9;
 
 static uint32_t lastVoltageMs = 0;
-int16_t ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0;
 
 static TaskHandle_t data_send_TaskHandle = nullptr; // 遥测 FreeRTOS 任务
 static TaskHandle_t control_TaskHandle = nullptr;
@@ -43,21 +43,23 @@ void data_send_Task(void *)
   for (;;)
   {
     uint32_t dt_ms = my_web_data_update();
-    send_msg[0] = ax / 131; // 摆角
-    send_msg[1] = ay / 131; // 侧倾角
-    send_msg[2] = az / 131; // 纵向角
-
+    // 姿态角
+    send_msg[0] = now_angleX; // 摆角
+    send_msg[1] = now_angleY; // 侧倾角
+    send_msg[2] = now_angleZ; // 纵向角
+    // 图1
     send_msg[3] = 0;         // 角速度X
     send_msg[4] = now_gyroZ; // 角速度Y
     send_msg[5] = 0;         // 角速度Z
-
+    // 图2
     send_msg[6] = err_angle;
     send_msg[7] = kalAngleZ - zero_angle;
     send_msg[8] = 0;
-
+    // 图3
     send_msg[9] = motion_target;
     send_msg[10] = 0;
     send_msg[11] = 0;
+    // 状态
     send_fall = blance_swingup;
     vTaskDelay(pdMS_TO_TICKS(dt_ms));
   }

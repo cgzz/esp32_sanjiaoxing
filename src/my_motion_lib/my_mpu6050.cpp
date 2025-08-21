@@ -5,7 +5,7 @@
 #include "my_io.h"
 // MPU6050实例
 
-MPU6050 mpu6050(myWire);
+MPU6050 mpu6050(my_wire);
 // 初始状态
 float angleZ0 = 0;
 float angleY0 = 0;

@@ -1,5 +1,5 @@
 #include "my_web_config.h"
-#include "my_config.h"
+#include "my_control.h"
 
 bool robot_run = false;
 bool charts_send = true;

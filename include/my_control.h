@@ -1,7 +1,26 @@
-
-
 #include <Arduino.h>
 #include <SimpleFOC.h>
+
+extern float LQR_K3_1;
+extern float LQR_K3_2;
+extern float LQR_K3_3;
+extern float LQR_K4_1;
+extern float LQR_K4_2;
+extern float LQR_K4_3;
+extern float v_p_1;
+extern float v_i_1;
+extern float v_p_2;
+extern float v_i_2;
+extern float target_velocity;
+extern float target_angle;
+extern float target_voltage;
+extern float swing_up_voltage;
+extern float swing_up_angle;
+extern int test_flag;
+extern bool motor_enable_flag;
+
+extern float err_angle;
+extern bool blance_swingup;
 
 extern MotionControlType mode; // torque or velocity
 extern float motion_target;    // voltage if torque, velocity if velocity

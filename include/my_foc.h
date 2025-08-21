@@ -4,10 +4,13 @@
 
 #include <Arduino.h>
 #include <SimpleFOC.h>
-
+#include "SPI.h"
 // 对外暴露电机对象以便其它模块读取 shaft_velocity 等
 extern BLDCMotor motor;
 
 void motorFocSetup();
+
+void encoderGenericInit();
+float encoderGenericRead();
 
 #endif // MOTOR_FOC_MODULE_H
