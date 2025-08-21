@@ -1,17 +1,17 @@
 <!doctype html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ESP32 控制台 · 前端原型（V3）</title>
+<title>ESP32 控制台 · 前端原型(V3)</title>
 <link rel="icon"
     href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23111"/><path d="M16 40h32v8H16zm4-24h24v6H20zm-4 10h32v6H16z" fill="%23fff"/></svg>'>
 <link rel="stylesheet" href="/assets/styles.css">
 
 <div class="wrap">
-    <h1>ESP32 控制台 · 前端原型（V3）</h1>
+    <h1>ESP32 控制台 · 前端原型(V3)</h1>
 
     <div class="card toolbar">
         <div class="hz">
-            <label>遥测频率(Hz)：<input id="rateHz" type="number" min="1" max="60" step="1" value="10"
+            <label>遥测频率(Hz):<input id="rateHz" type="number" min="1" max="60" step="1" value="10"
                     style="width:72px;padding:6px 8px;border:1px solid #d1d5db;border-radius:8px"></label>
             <button class="btn" id="btnSetRate">设置</button>
         </div>
@@ -41,8 +41,8 @@
         </div>
 
         <div class="hz" style="margin-left:16px">
-            <span class="bulb off" id="fallLamp" aria-label="摔倒指示"></span>
-            <span class="readout" id="fallLabel">稳定</span>
+            <span class="bulb off" id="fallLamp" aria-label="指示灯"></span>
+            <span class="readout" id="fallLabel">true</span>
         </div>
 
         <div style="margin-left:auto" class="readout" id="status">状态: booting…</div>
@@ -50,13 +50,13 @@
 
     <div class="grid cols-3">
         <div class="card">
-            <h2 id="chartTitle1">误差跟踪</h2><canvas id="chart1"></canvas>
+            <h2 id="chartTitle1">chart1</h2><canvas id="chart1"></canvas>
         </div>
         <div class="card">
-            <h2 id="chartTitle2">轮速跟踪</h2><canvas id="chart2"></canvas>
+            <h2 id="chartTitle2">chart2</h2><canvas id="chart2"></canvas>
         </div>
         <div class="card">
-            <h2 id="chartTitle3">力矩跟踪</h2><canvas id="chart3"></canvas>
+            <h2 id="chartTitle3">chart3</h2><canvas id="chart3"></canvas>
         </div>
     </div>
 

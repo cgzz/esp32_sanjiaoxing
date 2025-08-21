@@ -23,9 +23,9 @@ export function initCharts(){
       }
     });
   };
-  state.charts.ch1 = mk($('#chart1'), ['epos','espd','eang']);
-  state.charts.ch2 = mk($('#chart2'), ['wspd1','wspd2','wspd']);
-  state.charts.ch3 = mk($('#chart3'), ['tbase','tyaw','tvel']);
+  state.charts.ch1 = mk($('#chart1'), ['a','b','c']);
+  state.charts.ch2 = mk($('#chart2'), ['d','e','f']);
+  state.charts.ch3 = mk($('#chart3'), ['g','h','i']);
   appendLog('[INIT] charts ready');
 }
 
