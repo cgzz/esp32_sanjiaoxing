@@ -43,8 +43,8 @@ void my_web_ui_init(SliderGroup slider_group[4], ChartConfig chart_config[3])
 // ========== UI 配置 JSON 打包（仅首连时发送一次） ==========
 JsonDocument cb_ui_config()
 {
-    // StaticJsonDocument<512> 容量偏小，容易截断；改为动态并给足余量
-    DynamicJsonDocument doc(1536);
+    StaticJsonDocument<512> doc; // 容量偏小，容易截断；改为动态并给足余量
+    // DynamicJsonDocument doc(1536);
 
     // 把 type 放最前，前端能更快分发；哪怕极端截断也更易诊断
     doc["type"] = "ui_config";
@@ -84,11 +84,14 @@ uint32_t cb_telemetry()
 
     doc["type"] = "telemetry";
     doc["fallen"] = send_fall;
+    doc["pitch"] = send_msg[0];
+    doc["yaw"] = send_msg[1];
+    doc["roll"] = send_msg[2];
 
     JsonArray arr = doc.createNestedArray("d");
-    int limit = charts_send ? 12 : 3; // 若前端关闭图表推送，仅发 3 路减载
-    for (int i = 0; i < limit; i++)
-        arr.add(send_msg[i]);
+    if (charts_send)
+        for (int i = 3; i < 9; i++)
+            arr.add(send_msg[i]);
 
     wsBroadcast(doc);
     return dt_ms; // 返回下次采样间隔（ms）

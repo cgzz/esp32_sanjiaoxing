@@ -4,7 +4,6 @@
 #include "my_mpu6050.h"
 #include "my_web.h"
 #include "sensor_fusion.h"
-
 bool stable = false;
 uint32_t last_unstable_time = 0;
 uint32_t last_stable_time = 0;
@@ -41,6 +40,11 @@ void move_update()
     blance_compute();
   else
     swingup_compute();
+  if (testmode_enabled)
+  {
+    motor.controller = (MotionControlType)testmode_motor_mode;
+    motion_target = testmode_value;
+  }
   if (!robot_run)
     motion_target = 0;
 }
@@ -59,7 +63,7 @@ void blance_compute()
     stable = true;
   }
 
-  if ((millis() - last_stable_time) > 2500 && stable) // 稳定时间超过2.5秒，开始调整目标角度
+  if ((now_time - last_stable_time) > 2500 && stable) // 稳定时间超过2.5秒，开始调整目标角度
   {
     if (fabs(motion_target) > 5)
     {

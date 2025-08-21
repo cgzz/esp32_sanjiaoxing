@@ -278,13 +278,83 @@
             </div>
         </div>
     </div>
+    <div class="card" id="ledCard">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>LED 跑马灯控制</h2>
+            <div class="led-actions">
+                <button class="btn" id="ledPowerBtn">上电</button>
+                <button class="btn" id="ledBlackoutBtn">全灭</button>
+                <button class="btn" id="ledPreviewBtn">本地预览</button>
+            </div>
+        </div>
+
+        <div class="grid cols-3" style="gap:12px;align-items:flex-end">
+            <div>
+                <label class="fld">模式
+                    <select id="ledMode">
+                        <option value="0">追逐 CHASE</option>
+                        <option value="1">彗星 COMET</option>
+                        <option value="2">弹跳 BOUNCE</option>
+                        <option value="3">影院 THEATER</option>
+                        <option value="4">彩虹 RAINBOW</option>
+                        <option value="5">呼吸 BREATH</option>
+                    </select>
+                </label>
+
+                <label class="fld">方向
+                    <select id="ledDir">
+                        <option value="1">顺时针 / 正向</option>
+                        <option value="-1">逆时针 / 反向</option>
+                    </select>
+                </label>
+
+                <label class="fld">主色
+                    <input id="ledColor" type="color" value="#1ec8ff">
+                </label>
+            </div>
+
+            <div>
+                <label class="fld">速度(间隔ms)
+                    <input id="ledInterval" type="number" min="5" max="200" step="1" value="40">
+                </label>
+                <label class="fld">亮度(0-255)
+                    <input id="ledBright" type="number" min="1" max="255" step="1" value="80">
+                </label>
+                <label class="fld">尾巴衰减(0-255)
+                    <input id="ledDecay" type="number" min="0" max="255" step="1" value="48">
+                </label>
+            </div>
+
+            <div>
+                <label class="fld">影院步长(2-6)
+                    <input id="ledTheaterStep" type="number" min="2" max="6" step="1" value="3">
+                </label>
+                <label class="fld">呼吸速度(1-16)
+                    <input id="ledBreathSpd" type="number" min="1" max="16" step="1" value="8">
+                </label>
+                <label class="fld">彩虹速度(1-16)
+                    <input id="ledRainbowSpd" type="number" min="1" max="16" step="1" value="4">
+                </label>
+            </div>
+        </div>
+
+        <div class="led-strip" id="ledStripPreview" aria-label="21-led 预览"></div>
+
+        <div style="display:flex; gap:8px; margin-top:10px">
+            <button class="btn" id="ledApplyBtn">应用到设备</button>
+            <button class="btn" id="ledReadBtn">读取设备状态</button>
+            <span class="readout" id="ledState">未连接</span>
+        </div>
+    </div>
 
     <div class="card">
         <h2>事件日志</h2>
         <pre class="readout" id="log">boot</pre>
     </div>
 </div>
+<!-- === 新增：LED 跑马灯控制台 === -->
 
 <script src="/assets/chart.umd.js"></script>
 <script src="/assets/three.min.js"></script>
 <script type="module" src="/js/app.js"></script>
+<script type="module" src="/js/led.js"></script>

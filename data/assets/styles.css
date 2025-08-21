@@ -364,3 +364,38 @@ input:checked+.slider:before {
     border-color: #cbd5e1;
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .7);
 }
+/* === LED 控制台附加样式 === */
+#ledCard .fld {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+#ledCard input[type="number"],
+#ledCard select {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+}
+
+.led-actions .btn {
+    margin-left: 8px;
+}
+
+.led-strip {
+    display: grid;
+    grid-template-columns: repeat(21, 18px);
+    gap: 6px;
+    padding: 10px 0;
+    align-items: center;
+}
+
+.led-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgb(12, 12, 12);
+    box-shadow: 0 0 6px rgba(0, 0, 0, .35) inset;
+    border: 1px solid rgba(255, 255, 255, .06);
+}

@@ -11,7 +11,7 @@
 #include "my_mpu6050.h"
 #include "my_control.h"
 #include "my_web.h"
-
+#include "my_led.h"
 static TaskHandle_t data_send_TaskHandle = nullptr; // 遥测 FreeRTOS 任务
 static TaskHandle_t control_TaskHandle = nullptr;   // 控制 FreeRTOS 任务
 static TaskHandle_t led_TaskHandle = nullptr;       // LED FreeRTOS 任务
@@ -77,6 +77,7 @@ void led_Task(void *)
   for (;;)
   {
     // 控制LED状态
+    leds_update();
   }
 }
 
@@ -93,6 +94,9 @@ void setup()
   my_web_ui_init(slider_group, chart_config);
   // io初始化
   my_io_init();
+  // led初始化
+  leds_init();
+
   // 6050 初始化
   mpu6050_init();
   initWithPitch(acc2rotation(angleX0, angleY0));

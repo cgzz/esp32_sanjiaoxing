@@ -1,124 +1,160 @@
-#include <Arduino.h>
-#include <Adafruit_NeoPixel.h>
-// 直接宏定义引脚
-#define LED_PIN 16
-// 21 个 LED
+#include "my_led.h"
 
-// GPIO4
-const uint16_t NUM_LEDS = 21;
+static Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, LED_TYPE);
+static LedConfig cfg;
+static uint32_t tPrev = 0;
+static int32_t idx = 0;
+static int8_t dir = 1;
+static uint16_t phase = 0;
 
-// 默认颜色（R,G,B）
-uint8_t colorR = 0;
-uint8_t colorG = 150;
-uint8_t colorB = 0;
-
-// 每步间隔（毫秒），控制跑马灯速度；可以通过串口修改
-unsigned long stepDelay = 150; // 默认 150 ms
-
-// 创建对象strip
-Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, NEO_GRB + NEO_KHZ800);
-
-// 运行状态变量
-int currentIndex = 0;         // 现在亮的灯编号（0..NUM_LEDS-1）
-unsigned long lastStepMs = 0; // 记录上一次切换的时间（毫秒）
-
-void led_init()
+static uint16_t wrap(int32_t x)
 {
-    Serial.begin(115200);
-    strip.begin();
-    strip.setBrightness(80);
-    // 初始全部关灯
-    for (uint16_t i = 0; i < NUM_LEDS; ++i)
-        strip.setPixelColor(i, 0);
-    strip.show();
-    // 先点亮第一个灯，让小朋友看到有灯
-    uint32_t c = strip.Color(colorR, colorG, colorB);
-    strip.setPixelColor(0, c);
-    strip.show();
-    // 初始化时间
-    lastStepMs = millis();
-    currentIndex = 0;
+    int32_t n = NUM_LEDS;
+    int32_t m = x % n;
+    return (m < 0) ? (m + n) : m;
+}
+static uint32_t wheel(uint8_t pos)
+{
+    pos = 255 - pos;
+    if (pos < 85)
+        return strip.Color(255 - pos * 3, 0, pos * 3);
+    if (pos < 170)
+    {
+        pos -= 85;
+        return strip.Color(0, pos * 3, 255 - pos * 3);
+    }
+    pos -= 170;
+    return strip.Color(pos * 3, 255 - pos * 3, 0);
+}
+static void fadeAll(uint8_t decay)
+{
+    for (uint16_t i = 0; i < NUM_LEDS; i++)
+    {
+        uint32_t c = strip.getPixelColor(i);
+        uint8_t r = (c >> 16) & 0xFF, g = (c >> 8) & 0xFF, b = c & 0xFF;
+        r = (r > decay) ? (r - decay) : 0;
+        g = (g > decay) ? (g - decay) : 0;
+        b = (b > decay) ? (b - decay) : 0;
+        strip.setPixelColor(i, r, g, b);
+    }
 }
 
-void led_update()
+void leds_init()
 {
-    unsigned long now = millis(); // 记录到每个灯亮的时候的时间
-    // 非阻塞：到达时间再移动到下一个灯
-    if (now - lastStepMs >= stepDelay)
+    strip.begin();
+    strip.setBrightness(cfg.brightness);
+    strip.clear();
+    strip.show();
+}
+
+void leds_power(bool on)
+{
+    cfg.powerOn = on;
+    if (!on)
     {
-        lastStepMs = now;
-        // 熄灭当前灯
-        strip.setPixelColor(currentIndex, 0);
-        // 移动到下一个编号
-        currentIndex++;
-        if (currentIndex >= (int)NUM_LEDS)
-            currentIndex = 0; // 判断书否超出编号21
-        // 点亮新的当前灯
-        uint32_t c = strip.Color(colorR, colorG, colorB);
-        strip.setPixelColor(currentIndex, c);
-        // 发送数据到灯带
+        strip.clear();
         strip.show();
     }
+}
 
-    // 串口控制（非阻塞读取）
-    if (Serial.available())
+void leds_apply(const LedConfig &c)
+{
+    cfg = c;
+    strip.setBrightness(cfg.brightness);
+    dir = (cfg.dir >= 0) ? 1 : -1;
+    idx = 0;
+    phase = 0;
+    if (!cfg.powerOn)
     {
-        char ch = Serial.read();
-        if (ch == 'r')
+        strip.clear();
+        strip.show();
+    }
+}
+
+LedConfig leds_get() { return cfg; }
+
+void leds_update()
+{
+    if (!cfg.powerOn)
+        return;
+    const uint32_t now = millis();
+    if (now - tPrev < cfg.interval)
+        return;
+    tPrev = now;
+
+    switch (cfg.mode)
+    {
+    case MODE_CHASE:
+        strip.clear();
+        strip.setPixelColor(wrap(idx), cfg.color);
+        strip.show();
+        idx = wrap(idx + dir);
+        break;
+
+    case MODE_COMET:
+        fadeAll(cfg.tailDecay);
+        strip.setPixelColor(wrap(idx), cfg.color);
+        strip.show();
+        idx = wrap(idx + dir);
+        break;
+
+    case MODE_BOUNCE:
+    {
+        strip.clear();
+        strip.setPixelColor(wrap(idx), cfg.color);
+        strip.show();
+        idx += dir;
+        if (idx >= (int)NUM_LEDS - 1)
         {
-            colorR = 200;
-            colorG = 0;
-            colorB = 0;
-            Serial.println("颜色: 红");
+            idx = NUM_LEDS - 1;
+            dir = -1;
         }
-        if (ch == 'g')
+        else if (idx <= 0)
         {
-            colorR = 0;
-            colorG = 200;
-            colorB = 0;
-            Serial.println("颜色: 绿");
+            idx = 0;
+            dir = 1;
         }
-        if (ch == 'b')
+    }
+    break;
+
+    case MODE_THEATER:
+    {
+        strip.clear();
+        for (uint16_t i = 0; i < NUM_LEDS; i++)
+            if (((i + idx) % cfg.theaterStep) == 0)
+                strip.setPixelColor(i, cfg.color);
+        strip.show();
+        idx = wrap(idx + dir);
+    }
+    break;
+
+    case MODE_RAINBOW:
+    {
+        for (uint16_t i = 0; i < NUM_LEDS; i++)
         {
-            colorR = 0;
-            colorG = 0;
-            colorB = 200;
-            Serial.println("颜色: 蓝");
+            uint8_t hue = (uint8_t)((i * 256 / NUM_LEDS + phase) & 0xFF);
+            strip.setPixelColor(i, wheel(hue));
         }
-        if (ch == 'y')
-        {
-            colorR = 200;
-            colorG = 200;
-            colorB = 0;
-            Serial.println("颜色: 黄");
-        }
-        if (ch == '1')
-        {
-            stepDelay = 400;
-            Serial.println("速度: 慢");
-        }
-        if (ch == '2')
-        {
-            stepDelay = 200;
-            Serial.println("速度: 中");
-        }
-        if (ch == '3')
-        {
-            stepDelay = 100;
-            Serial.println("速度: 快");
-        }
-        if (ch == '4')
-        {
-            stepDelay = 50;
-            Serial.println("速度: 非常快");
-        }
-        if (ch == 'c')
-        {
-            // 清屏：关掉所有灯
-            for (uint16_t i = 0; i < NUM_LEDS; ++i)
-                strip.setPixelColor(i, 0);
-            strip.show();
-            Serial.println("清屏：所有灯已关");
-        }
+        strip.show();
+        phase = (phase + cfg.rainbowSpeed) & 0xFFFF;
+    }
+    break;
+
+    case MODE_BREATH:
+    {
+        phase = (phase + cfg.breathSpeed) & 0x03FF; // 0..1023
+        float t = (float)phase / 1024.0f;
+        float s = 0.5f - 0.5f * cosf(2.0f * PI * t);
+        uint8_t r = ((cfg.color >> 16) & 0xFF) * s;
+        uint8_t g = ((cfg.color >> 8) & 0xFF) * s;
+        uint8_t b = ((cfg.color) & 0xFF) * s;
+        for (uint16_t i = 0; i < NUM_LEDS; i++)
+            strip.setPixelColor(i, r, g, b);
+        strip.show();
+    }
+    break;
+
+    default:
+        break;
     }
 }
