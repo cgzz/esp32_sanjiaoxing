@@ -1,0 +1,300 @@
+<!doctype html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ESP32 控制台 · 前端原型（V3）</title>
+<link rel="icon"
+    href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="%23111"/><path d="M16 40h32v8H16zm4-24h24v6H20zm-4 10h32v6H16z" fill="%23fff"/></svg>'>
+<link rel="stylesheet" href="/assets/styles.css">
+
+<div class="wrap">
+    <h1>ESP32 控制台 · 前端原型（V3）</h1>
+
+    <div class="card toolbar">
+        <div class="hz">
+            <label>遥测频率(Hz)：<input id="rateHz" type="number" min="1" max="60" step="1" value="10"
+                    style="width:72px;padding:6px 8px;border:1px solid #d1d5db;border-radius:8px"></label>
+            <button class="btn" id="btnSetRate">设置</button>
+        </div>
+
+        <div style="margin-left:16px">运行：
+            <label class="switch">
+                <input id="runSwitch" type="checkbox" checked><span class="slider"></span>
+            </label>
+        </div>
+
+        <div style="margin-left:16px">图表推送：
+            <label class="switch">
+                <input id="chartSwitch" type="checkbox" checked><span class="slider"></span>
+            </label>
+        </div>
+
+        <div style="margin-left:16px">测试模式：
+            <label class="switch">
+                <input id="testModeSwitch" type="checkbox"><span class="slider"></span>
+            </label>
+        </div>
+
+        <div style="margin-left:16px">摔倒检测：
+            <label class="switch">
+                <input id="fallDetectSwitch" type="checkbox"><span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="hz" style="margin-left:16px">
+            <span class="bulb off" id="fallLamp" aria-label="摔倒指示"></span>
+            <span class="readout" id="fallLabel">稳定</span>
+        </div>
+
+        <div style="margin-left:auto" class="readout" id="status">状态: booting…</div>
+    </div>
+
+    <div class="grid cols-3">
+        <div class="card">
+            <h2>误差跟踪</h2><canvas id="chart1"></canvas>
+        </div>
+        <div class="card">
+            <h2>轮速跟踪</h2><canvas id="chart2"></canvas>
+        </div>
+        <div class="card">
+            <h2>力矩跟踪</h2><canvas id="chart3"></canvas>
+        </div>
+    </div>
+
+    <!-- 控制参数（PID） -->
+    <div class="card" id="pidCard">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>控制参数（PID）</h2>
+            <div style="display:flex; gap:8px">
+                <button class="btn" id="btnPidSend">发送</button>
+                <button class="btn" id="btnPidPull">更新</button>
+            </div>
+        </div>
+        <!-- 角度环 -->
+        <div
+            style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
+            <div style="font-weight:600">角度环</div>
+
+            <!-- angP -->
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>P</span>
+                    <span class="nbox">
+                        <span id="sv_angP">0.000</span>
+                        <input type="number" id="nv_angP" step="0.01" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_angP" type="range" step="0.01" value="0">
+            </div>
+
+            <!-- angI -->
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>I</span>
+                    <span class="nbox">
+                        <span id="sv_angI">0.000</span>
+                        <input type="number" id="nv_angI" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_angI" type="range" step="0.001" value="0">
+            </div>
+
+            <!-- angD -->
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>D</span>
+                    <span class="nbox">
+                        <span id="sv_angD">0.000</span>
+                        <input type="number" id="nv_angD" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_angD" type="range" step="0.001" value="0">
+            </div>
+        </div>
+
+        <!-- 速度环 -->
+        <div
+            style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
+            <div style="font-weight:600">速度环</div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>P</span>
+                    <span class="nbox">
+                        <span id="sv_spdP">0.000</span>
+                        <input type="number" id="nv_spdP" step="0.01" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_spdP" type="range" step="0.01" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>I</span>
+                    <span class="nbox">
+                        <span id="sv_spdI">0.000</span>
+                        <input type="number" id="nv_spdI" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_spdI" type="range" step="0.001" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>D</span>
+                    <span class="nbox">
+                        <span id="sv_spdD">0.000</span>
+                        <input type="number" id="nv_spdD" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_spdD" type="range" step="0.001" value="0">
+            </div>
+        </div>
+
+        <!-- 位置环 -->
+        <div
+            style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
+            <div style="font-weight:600">位置环</div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>P</span>
+                    <span class="nbox">
+                        <span id="sv_posP">0.000</span>
+                        <input type="number" id="nv_posP" step="0.01" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_posP" type="range" step="0.01" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>I</span>
+                    <span class="nbox">
+                        <span id="sv_posI">0.000</span>
+                        <input type="number" id="nv_posI" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_posI" type="range" step="0.001" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>D</span>
+                    <span class="nbox">
+                        <span id="sv_posD">0.000</span>
+                        <input type="number" id="nv_posD" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_posD" type="range" step="0.001" value="0">
+            </div>
+        </div>
+
+        <!-- 航向环（新增） -->
+        <div
+            style="display:grid; grid-template-columns: 96px repeat(3, 1fr); gap:6px; align-items:center; margin:6px 0;">
+            <div style="font-weight:600">航向环</div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>P</span>
+                    <span class="nbox">
+                        <span id="sv_yawP">0.000</span>
+                        <input type="number" id="nv_yawP" step="0.01" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_yawP" type="range" step="0.01" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>I</span>
+                    <span class="nbox">
+                        <span id="sv_yawI">0.000</span>
+                        <input type="number" id="nv_yawI" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_yawI" type="range" step="0.001" value="0">
+            </div>
+
+            <div class="slider-item">
+                <div class="slider-head">
+                    <span>D</span>
+                    <span class="nbox">
+                        <span id="sv_yawD">0.000</span>
+                        <input type="number" id="nv_yawD" step="0.001" value="0.000">
+                    </span>
+                </div>
+                <input id="rg_yawD" type="range" step="0.001" value="0">
+            </div>
+        </div>
+
+        <!-- 零点调整（新增：长滑条） -->
+        <div class="slider-item" id="zeroWrap" style="margin-top:8px;">
+            <div class="slider-head">
+                <span>零点调整</span>
+                <span class="nbox">
+                    <span id="sv_zero">0.00</span>
+                    <input type="number" id="nv_zero" step="0.1" value="0.00">
+                </span>
+            </div>
+            <input id="rg_zero" type="range" step="0.1" value="0">
+        </div>
+    </div>
+
+    <!-- 测试模式 -->
+    <div class="card hidden" id="testModeCard">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+            <h2>测试模式</h2>
+            <div class="mode-group" id="modeBtns">
+                <button class="btn" data-mode="0">速度模式</button>
+                <button class="btn" data-mode="1">力矩模式</button>
+                <button class="btn" data-mode="2">位置模式</button>
+            </div>
+        </div>
+
+        <div class="test-ctrl">
+            <label>测试值：</label>
+            <input id="testValue" type="range" min="-10.00" max="10.00" step="0.1" value="0.00">
+            <span class="nbox">
+                <span id="testValOut">0.00</span>
+                <input type="number" id="testValueNum" step="0.1" min="-10" max="10" value="0.00">
+            </span>
+        </div>
+    </div>
+
+    <div class="flex">
+        <div class="card" style="flex:1.2">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h2>机器人 3D 姿态示意</h2>
+                <button class="btn" id="btnZeroAtt">重置</button>
+            </div>
+            <div id="robotCanvas"></div>
+            <div class="readout" id="attOut">pitch: 0.0° roll: 0.0° yaw: 0.0°</div>
+            <div class="height-ctrl">
+                <label>机器人高度：
+                    <input id="heightSlider" type="range" min="-0.10" max="0.40" step="0.01" value="0.00">
+                </label>
+                <span id="heightVal">0.00 m</span>
+            </div>
+            <div class="readout" style="margin-top:6px">提示：左键旋转，滚轮缩放，右键或 Ctrl+拖动平移</div>
+        </div>
+        <div class="card joystick-wrap" style="flex:.8">
+            <div class="joy-panel">
+                <h2 style="margin-bottom:6px">遥控</h2>
+                <div class="joystick" id="joystick">
+                    <div class="stick" id="stick"></div>
+                </div>
+                <div class="joy-readout" id="joyOut">x: 0.00 y: 0.00 r: 0.00 θ: 0.0°</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>事件日志</h2>
+        <pre class="readout" id="log">boot</pre>
+    </div>
+</div>
+
+<script src="/assets/chart.umd.js"></script>
+<script src="/assets/three.min.js"></script>
+<script type="module" src="/js/app.js"></script>
