@@ -17,7 +17,7 @@ static BLDCDriver3PWM driver(32, 33, 25);
 static GenericSensor sensor(encoderGenericRead, encoderGenericInit);
 BLDCMotor motor = BLDCMotor(7);
 
-void motorFocSetup()
+void motor_init()
 {
   sensor.init();
   motor.linkSensor(&sensor);
@@ -39,6 +39,12 @@ void motorFocSetup()
   motor.useMonitoring(Serial);
   motor.init();
   motor.initFOC();
+}
+void motor_update()
+{
+  motor.target = motion_target;
+  motor.loopFOC();
+  motor.move();
 }
 float encoderGenericRead()
 {

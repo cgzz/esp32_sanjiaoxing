@@ -8,7 +8,8 @@
 // 对外暴露电机对象以便其它模块读取 shaft_velocity 等
 extern BLDCMotor motor;
 
-void motorFocSetup();
+void motor_init();
+void motor_update();
 
 void encoderGenericInit();
 float encoderGenericRead();

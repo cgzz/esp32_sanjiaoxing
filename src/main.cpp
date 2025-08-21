@@ -12,37 +12,29 @@
 #include "my_control.h"
 #include "my_web.h"
 
-// ESP32 IOs / constants
-#define ACTIVE_PIN 4
-#define BAT_VOLTAGE_SENSE_PIN 34
-static const double R1_VOLTAGE = 62000;
-static const double R2_VOLTAGE = 10000;
-static const double MIN_VOLTAGE = 9;
-
-static uint32_t lastVoltageMs = 0;
-
 static TaskHandle_t data_send_TaskHandle = nullptr; // 遥测 FreeRTOS 任务
-static TaskHandle_t control_TaskHandle = nullptr;
-float zero_angle = 0;
-
+static TaskHandle_t control_TaskHandle = nullptr;   // 控制 FreeRTOS 任务
+static TaskHandle_t led_TaskHandle = nullptr;       // LED FreeRTOS 任务
+// 三个图表的名称和三个通道的名称
 ChartConfig chart_config[3] = {
     {"", {"", "", ""}},
     {"", {"", "", ""}},
     {"", {"", "", ""}},
 };
-
+// 12个滑块组的名称
 SliderGroup slider_group[4] = {
     {"", {"", "", ""}},
     {"", {"", "", ""}},
     {"", {"", "", ""}},
     {"", {"", "", ""}},
 };
-
+// 网页参数推送
 void data_send_Task(void *)
 {
   for (;;)
   {
     uint32_t dt_ms = my_web_data_update();
+    // 这个地方可以放自己想看的参数
     // 姿态角
     send_msg[0] = now_angleX; // 摆角
     send_msg[1] = now_angleY; // 侧倾角
@@ -53,7 +45,7 @@ void data_send_Task(void *)
     send_msg[5] = 0;         // 角速度Z
     // 图2
     send_msg[6] = err_angle;
-    send_msg[7] = kalAngleZ - zero_angle;
+    send_msg[7] = kalAngleZ - angleZ0;
     send_msg[8] = 0;
     // 图3
     send_msg[9] = motion_target;
@@ -64,60 +56,56 @@ void data_send_Task(void *)
     vTaskDelay(pdMS_TO_TICKS(dt_ms));
   }
 }
-
+// 运动控制
 void robot_control_Task(void *)
 {
   for (;;)
   {
     // 读取IMU
     mpu6050_update();
+    // 卡尔曼滤波更新角度
     kalman_update();
-    err_angle = constrainAngle(fmod(kalAngleZ - zero_angle, 120.0f) - target_angle);
-    // =============================================
-    if (testmode_enabled)
-    {
-      motion_target = testmode_value;
-      motor.controller = (MotionControlType)(testmode_motor_mode);
-    }
-    else
-    {
-      if (abs(err_angle) < swing_up_angle) // 如果角度小于摆动角度阈值，执行平衡控制
-        blance_compute();
-      else
-        swingup_compute();
-    }
-    // =============================================
-    if (!robot_run)
-      motion_target = 0;
-    motor.target = motion_target;
-    motor.loopFOC();
-    motor.move();
+    // 运动控制更新
+    move_update();
+    // 电机运动
+    motor_update();
+  }
+}
+// LED
+void led_Task(void *)
+{
+  for (;;)
+  {
+    // 控制LED状态
   }
 }
 
 void setup()
 {
-  Serial.begin(115200);
   pinMode(ACTIVE_PIN, OUTPUT);
   digitalWrite(ACTIVE_PIN, LOW);
-  // IMU init
-  my_io_init();
-  mpu6050_init();
-  float pitch = acc2rotation(angleX0, angleY0);
-  initWithPitch(pitch);
-  Serial.println("kalman mpu6050 init");
-  // 新增初始化
-  kalman_update();
-  zero_angle = kalAngleZ;
-  // FOC 初始化
-  motorFocSetup();
+  Serial.begin(115200);
+  // wifi初始化
   my_wifi_init();
+  // web初始化
   my_web_asyn_init();
+  // web ui文字传入
   my_web_ui_init(slider_group, chart_config);
-  digitalWrite(ACTIVE_PIN, HIGH);
+  // io初始化
+  my_io_init();
+  // 6050 初始化
+  mpu6050_init();
+  initWithPitch(acc2rotation(angleX0, angleY0));
+  kalman_update();
+  angleZ0 = kalAngleZ;
+  // FOC 初始化
+  motor_init();
 
-  xTaskCreatePinnedToCore(robot_control_Task, "ctrl_2ms", 8192, nullptr, 20, &control_TaskHandle, 0);
-  xTaskCreatePinnedToCore(data_send_Task, "telem", 8192, nullptr, 1, &data_send_TaskHandle, 1);
+  digitalWrite(ACTIVE_PIN, HIGH);
+  // 启动网页和控制任务
+  xTaskCreatePinnedToCore(robot_control_Task, "control", 8192, nullptr, 20, &control_TaskHandle, 0);
+  xTaskCreatePinnedToCore(data_send_Task, "websend", 8192, nullptr, 1, &data_send_TaskHandle, 1);
+  xTaskCreatePinnedToCore(data_send_Task, "led", 8192, nullptr, 1, &led_TaskHandle, 1);
 }
 
 void loop()
