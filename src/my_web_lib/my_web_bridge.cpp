@@ -85,12 +85,12 @@ uint32_t cb_telemetry()
     doc["type"] = "telemetry";
     doc["fallen"] = send_fall;
     doc["pitch"] = send_msg[0];
-    doc["yaw"] = send_msg[1];
-    doc["roll"] = send_msg[2];
+    doc["roll"] = send_msg[1];
+    doc["yaw"] = send_msg[2];
 
     JsonArray arr = doc.createNestedArray("d");
     if (charts_send)
-        for (int i = 3; i < 9; i++)
+        for (int i = 3; i < 12; i++)
             arr.add(send_msg[i]);
 
     wsBroadcast(doc);

@@ -78,6 +78,7 @@ void led_Task(void *)
   {
     // 控制LED状态
     leds_update();
+    vTaskDelay(pdMS_TO_TICKS(led_config.interval));
   }
 }
 

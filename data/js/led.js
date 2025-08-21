@@ -85,13 +85,14 @@ function paintPreview(mode, phase = 0) {
       break;
     case 5: // BREATH
       {
-        const k = 0.5 - 0.5*Math.cos(2*Math.PI*((phase%256)/256));
-        dots.forEach?.(()=>{}); // noop for HTMLCollection
-        for (let i=0;i<n;i++){
-          const ir = Math.round(r*k), ig = Math.round(g*k), ib = Math.round(b*k);
+        const k = 0.5 - 0.5 * Math.cos(2 * Math.PI * ((phase % 256) / 256));
+        dots.forEach?.(() => { }); // noop for HTMLCollection
+        for (let i = 0; i < n; i++) {
+          const ir = Math.round(r * k), ig = Math.round(g * k), ib = Math.round(b * k);
           dots[i].style.background = `rgb(${ir},${ig},${ib})`;
         }
       }
+      break;
     case 6: // 自定义模式1
       {
         // 自定义模式1的实现

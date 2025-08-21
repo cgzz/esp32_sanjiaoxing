@@ -82,7 +82,7 @@ void ws_evt_data(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType type, 
 
     // 10) led处理
     else if (!strcmp(typeStr, "led_set"))
-        cb_led_set(doc["param"].as<JsonObject>());
+        cb_led_set(doc.as<JsonObject>());
     // 11) LED：读取当前状态
     else if (!strcmp(typeStr, "led_get"))
         cb_led_get(c);
