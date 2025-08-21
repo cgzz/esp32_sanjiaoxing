@@ -57,27 +57,29 @@ void ws_evt_data(AsyncWebSocket *s, AsyncWebSocketClient *c, AwsEventType type, 
     else if (!strcmp(typeStr, "charts_on"))
         charts_send = doc["on"] | true; // 默认打开
 
-    // 4) 特殊状态检测开关
+    // 4) 测试模式：仅解析并回调（不保状态/不实现逻辑）
+    else if (!strcmp(typeStr, "test_mode"))
+        cb_testmode_fn(doc["enabled"].as<bool>() | false, doc["mode"] | 0, doc["value"] | 0.0f);
+
+    // 5) 特殊状态检测开关
     else if (!strcmp(typeStr, "fall_detect"))
         fallcheck_enable = doc["enable"];
 
-    // 5) 姿态零偏（预留）
+    // 6) 姿态零偏（预留）
     else if (!strcmp(typeStr, "att_zero"))
         return; // TODO
 
-    // 6) 摇杆
+    // 7) 摇杆
     else if (!strcmp(typeStr, "joy"))
         cb_joystick_fn(doc["x"] | 0.0f, doc["y"] | 0.0f, doc["deg"] | 0.0f);
 
-    // 7) 设置 PID
+    // 8) 设置 PID
     else if (!strcmp(typeStr, "set_pid"))
         cb_pid_set_fn(doc["param"].as<JsonObject>());
 
-    // 8) 读取 PID（回填给前端）
+    // 9) 读取 PID（回填给前端）
     else if (!strcmp(typeStr, "get_pid"))
         wsSendTo(c, cb_pid_get_n());
-
-    // 其余类型忽略
 }
 
 // ping/pong事件
